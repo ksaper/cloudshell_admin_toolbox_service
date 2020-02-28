@@ -1,0 +1,70 @@
+<Driver Description="Describe the purpose of your CloudShell shell" MainClass="driver.CloudshellAdminToolboxDriver"
+        Name="CloudshellAdminToolboxDriver" Version="1.0.0">
+        <Layout>
+        <Category Name="Hidden Commands">
+
+        </Category>
+        <Category Name="Resource Commands">
+            <Command DisplayName="Set Resource Live Status" Name="set_resource_status">
+                <Parameters>
+                    <Parameter Name="target" DisplayName="Target" Description="Name of Resource in this reservation"/>
+                    <Parameter Name="status" DisplayName="Status" Description="Pick the Status to set it to"
+                    Type="Lookup" Mandatory="True" DefaultValue="none"
+                    AllowedValues="none,online,offline,info,error,public,private,00%,10%,20%,30%,40%,50%,60%,70%,80%,90%,100%"/>
+                </Parameters>
+            </Command>
+            <Command DisplayName="Get Summary" Name="get_summary">
+                <Parameters>
+                    <Parameter DisplayName="Target" Name="target" Description="Name of App or Device to summarize"/>
+                </Parameters>
+            </Command>
+            <Command DisplayName="Get Reservations" Name="get_reservations"
+                     Description="Gets a list of all current and upcoming (30 days) reservations for target">
+                <Parameters>
+                    <Parameter DisplayName="Target" Name="target"/>
+                </Parameters>
+            </Command>
+            <Command DisplayName="Get Attributes" Name="get_attributes" Description="List all attributes and values on the target Resoruce or App">
+                <Parameters>
+                    <Parameter DisplayName="Target" Name="target" Type="String" Description="Name/Address of target to get attributes from"
+                               Mandatory="True" />
+                    <Parameter Description="Decrypt Passwords" Name="decrypt_passwords" Mandatory="True" Type="Lookup"
+                               DefaultValue="False" AllowedValues="True,False" />
+                </Parameters>
+            </Command>
+            <Command DisplayName="Set Attribute Value" Name="set_attribute_value">
+                <Parameters>
+                    <Parameter Name="target" DisplayName="Target" Description="Name of Resource in this reservation"/>
+                    <Parameter Name="attribute_Name" DisplayName="Attribute Name" Description="Name of the Attribute to Set"/>
+                    <Parameter Name="attribute_value" DisplayName="Value" Description="Value to set the attribute to"/>
+                </Parameters>
+            </Command>
+            <Command DisplayName="Get Children" Name="get_children" Description="Lists all child resources of the device">
+                <Parameters>
+                    <Parameter DisplayName="Target" Name="target" Description="Name or Address of the resource in this reservation"/>
+                </Parameters>
+            </Command>
+            <Command DisplayName="Get Connections" Name="get_connections" Description="Lists all connections on this resources">
+                <Parameters>
+                    <Parameter DisplayName="Target" Name="target" Description="Name or Address of the resource in this reservation"/>
+                </Parameters>
+            </Command>
+        </Category>
+        <Category Name="Reservation Commands">
+            <Command DisplayName="List Reservation Assets" Name="list_all_reservation_assets"
+                Description="Lists all assets in the current reservations (Apps, Resrouces, Services)"/>
+             <Command Name="get_reservation_information" DisplayName="Get Current Reservation Info"
+                Description="Displays basic information on the current Reservation"/>
+            <Command DisplayName="Set Reservation Live Status" Name="set_reservation_status">
+                <Parameters>
+                    <Parameter DisplayName="Status" Name="status" Type="Lookup" DefaultValue="completed_good"
+                    Description="Set the Reservations Live Status" Mandatory="True"
+                    AllowedValues="none,downloading,installing,configuring,gen_report,complete_good,complete_bad,error,in_prog,00%,10%,20%,30%,40%,50%,60%,70%,80%,90%,100%"/>
+                </Parameters>
+            </Command>
+            <Command DisplayName="Get All Reservations" Name="get_all_reservations"
+                     Description="Get a list of current and upcoming (30 days) reservations for all items in this reservation">
+            </Command>
+        </Category>
+    </Layout>
+</Driver>
