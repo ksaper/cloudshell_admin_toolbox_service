@@ -1,11 +1,15 @@
-## cloudshell_admin_toolbox_service 
+### cloudshell_admin_toolbox_service 
 
 ---
-**Admin only Service for Quali's CloudShell**
+**Admin Only Service Shell for Quali's CloudShell**
+
+- www.tsieda.com
+- www.quali.com/cloudshell-pro
 
 This is a 2nd Gen Service Shell for use with in a Sandbox (CloudShell Reservation).
-It provides a series of of commands that are either not directly available, or require the use of other tools.
----
+It provides a series of of commands that are either not directly available, 
+or require the use of other tools that are outside of the Sandbox.
+
 **Commands are broken into 2 sections:**
 1. Resource Commands
 2. Reservation Commands
