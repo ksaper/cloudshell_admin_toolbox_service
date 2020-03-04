@@ -1,8 +1,9 @@
 from cloudshell.shell.core.resource_driver_interface import ResourceDriverInterface
 from cloudshell.shell.core.driver_context import InitCommandContext, ResourceCommandContext, AutoLoadResource, \
     AutoLoadAttribute, AutoLoadDetails, CancellationContext
-#from data_model import *  # run 'shellfoundry generate' to generate data model classes
+# from data_model import *  # run 'shellfoundry generate' to generate data model classes
 from cloudshell.api.cloudshell_api import CloudShellAPISession as cs_api
+from cloudshell.api.cloudshell_api import SandboxDataKeyValue
 from cloudshell.api.common_cloudshell_api import CloudShellAPIError as cs_error
 import time
 
@@ -547,3 +548,53 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
 
         else:
             w2out(res_id, '!* Empty Reservation, no items to display')
+
+    def read_sandbox_data(self, context):
+        """
+
+        :param ResourceCommandContext context:
+        :return:
+        """
+        cs_session = self._open_cloudshell_session(context)
+        res_id = context.reservation.reservation_id
+        w2out = cs_session.WriteMessageToReservationOutput
+
+        sandbox_data = cs_session.GetSandboxData(context.reservation.reservation_id).SandboxDataKeyValues
+
+        w2out(res_id, '\n> Sandbox Data (internal field)')
+
+        if sandbox_data:
+            w2out(res_id, '\n')
+            for each in sandbox_data:
+                w2out(res_id, '- {}: {}'.format(each.Key, each.Value))
+            w2out(res_id, '{}='.format('=-' * 36))
+        else:
+            w2out(res_id, '- No current Sandbox Data')
+
+
+    def set_sandbox_data_by_key(self, context, key, value):
+        cs_session = self._open_cloudshell_session(context)
+        res_id = context.reservation.reservation_id
+        w2out = cs_session.WriteMessageToReservationOutput
+
+        w2out(res_id, '\n> Adding to Sandbox Data')
+
+        try:
+            cs_session.SetSandboxData(res_id, [SandboxDataKeyValue(key, value)])
+            w2out(res_id, '- Success')
+        except cs_error as err:
+            w2out(res_id, '!! Error: {}'.format(err.message))
+
+    def clear_sandbox_data(self, context, check):
+        cs_session = self._open_cloudshell_session(context)
+        res_id = context.reservation.reservation_id
+        w2out = cs_session.WriteMessageToReservationOutput
+
+        if check.upper() == 'YES':
+
+            w2out(res_id, '\n> Clearing Sandbox Data')
+            try:
+                cs_session.ClearSandboxData(res_id)
+                w2out(res_id, ' - Success')
+            except cs_error as err:
+                w2out(res_id, '!! Error: {}'.format(err.message))

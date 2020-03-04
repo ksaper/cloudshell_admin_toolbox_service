@@ -1,5 +1,5 @@
 <Driver Description="Describe the purpose of your CloudShell shell" MainClass="driver.CloudshellAdminToolboxDriver"
-        Name="CloudshellAdminToolboxDriver" Version="1.0.0">
+        Name="CloudshellAdminToolboxDriver" Version="1.1.1">
         <Layout>
         <Category Name="Hidden Commands">
 
@@ -64,6 +64,24 @@
             </Command>
             <Command DisplayName="Get All Reservations" Name="get_all_reservations"
                      Description="Get a list of current and upcoming (30 days) reservations for all items in this reservation">
+            </Command>
+            <Command DisplayName="Show Sandbox Data Field" Name="read_sandbox_data"
+                Description="Returns the current value of the Sandbox Data field">
+            </Command>
+            <Command DisplayName="Add to Sandbox Data" Name="set_sandbox_data_by_key"
+                Description="Add/Change data by Key Value to the Sandbox Data field">
+                <Parameters>
+                    <Parameter DisplayName="Key" Name="key" Description="Key to hold the data"/>
+                    <Parameter DisplayName="Value" Name="value" Description="Value to hold"/>
+                </Parameters>
+            </Command>
+            <Command DisplayName="Clear Sandbox Data" Name="clear_sandbox_data"
+                     Description="Clears all data in the current Sandbox Data">
+                <Parameters>
+                    <Parameter DisplayName="Are You Sure?" Name="check"
+                               Description="Please validate you want to do this" Type="Lookup" DefaultValue="No"
+                               Mandatory="True" AllowedValues="Yes,No"/>
+                </Parameters>
             </Command>
         </Category>
     </Layout>
