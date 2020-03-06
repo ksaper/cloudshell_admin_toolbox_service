@@ -62,6 +62,15 @@ Commands:
     * Pull down option is matched to Quali Defaults
 * Get All Reservations
     * Returns a list of all current and upcoming reservations for all resources in the Sandbox
+* Get Sandbox Data
+    * Returns the information in the 'Sandbox Data'
+    * This is an internal record to the sandbox
+    * Simple flat Key:Value storage
+        * Value can be more complex data structure
+* Set Sandbox Data by Key
+    * Creates/Updates the Value of a Key in the Sandbox Data
+* Clear Sandbox Data
+    * Sets the Sandbox Data to a Null/Blank value
      
 
 
