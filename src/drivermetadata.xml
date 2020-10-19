@@ -1,5 +1,5 @@
 <Driver Description="Describe the purpose of your CloudShell shell" MainClass="driver.CloudshellAdminToolboxDriver"
-        Name="CloudshellAdminToolboxDriver" Version="1.1.1">
+        Name="CloudshellAdminToolboxDriver" Version="2.1.1" PythonVersion="3">
         <Layout>
         <Category Name="Hidden Commands">
 
@@ -52,7 +52,7 @@
         </Category>
         <Category Name="Reservation Commands">
             <Command DisplayName="List Reservation Assets" Name="list_all_reservation_assets"
-                Description="Lists all assets in the current reservations (Apps, Resrouces, Services)"/>
+                Description="Lists all assets in the current reservations (Apps, Resources, Services)"/>
              <Command Name="get_reservation_information" DisplayName="Get Current Reservation Info"
                 Description="Displays basic information on the current Reservation"/>
             <Command DisplayName="Set Reservation Live Status" Name="set_reservation_status">
@@ -82,6 +82,14 @@
                                Description="Please validate you want to do this" Type="Lookup" DefaultValue="No"
                                Mandatory="True" AllowedValues="Yes,No"/>
                 </Parameters>
+            </Command>
+            <Command DisplayName="List All Routes in the Sandbox" Name="get_all_routes"
+                     Description="Returns a list of all Active and Requested Routes in the Sandbox">
+            </Command>
+        </Category>
+        <Category Name="Sandbox Staging Commands">
+            <Command DisplayName="Configure All Apps" Name="configure_all_apps"
+                     Description="Calls the Sandbox setup command to configure all Apps in the Sandbox">
             </Command>
         </Category>
     </Layout>

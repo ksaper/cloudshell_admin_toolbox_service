@@ -2,10 +2,11 @@ from cloudshell.shell.core.resource_driver_interface import ResourceDriverInterf
 from cloudshell.shell.core.driver_context import InitCommandContext, ResourceCommandContext, AutoLoadResource, \
     AutoLoadAttribute, AutoLoadDetails, CancellationContext
 # from data_model import *  # run 'shellfoundry generate' to generate data model classes
-from cloudshell.api.cloudshell_api import CloudShellAPISession as cs_api
+from cloudshell.api.cloudshell_api import CloudShellAPISession as CSApi
 from cloudshell.api.cloudshell_api import SandboxDataKeyValue
-from cloudshell.api.common_cloudshell_api import CloudShellAPIError as cs_error
+from cloudshell.api.common_cloudshell_api import CloudShellAPIError as CSError
 import time
+
 
 MAX_RANGE = (30 * 24 * 60 * 60)  # 30 days, in seconds
 RESOURCE_LIVE_STATUS = {
@@ -82,10 +83,10 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
         :param ResourceCommandContext context:
         :return: CloudShellAPISession
         """
-        return cs_api(context.connectivity.server_address,
-                      domain=context.reservation.domain,
-                      port=context.connectivity.cloudshell_api_port,
-                      token_id=context.connectivity.admin_auth_token)
+        return CSApi(context.connectivity.server_address,
+                     domain=context.reservation.domain,
+                     port=context.connectivity.cloudshell_api_port,
+                     token_id=context.connectivity.admin_auth_token)
 
     def _get_resoruces_in_res(self, cs_session, res_id):
         return cs_session.GetReservationDetails(res_id).ReservationDescription.Resources
@@ -233,7 +234,7 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
                 try:
                     cs_session.SetAttributeValue(target, attribute_name, attribute_value)
                     w2out(res_id, '\n> Attribute {} on {} set to:  {}'.format(attribute_name, target, attribute_value))
-                except cs_error as e:
+                except CSError as e:
                     w2out(res_id, '\n!! - Error: Updating Attribute {} on {} \n   {}'.format(attribute_name,
                                                                                              target, e.message))
             elif attribute_name in short_list:
@@ -241,7 +242,7 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
                 try:
                     cs_session.SetAttributeValue(target, full_att_name, attribute_value)
                     w2out(res_id, '\n> Attribute {} on {} set to:  {}'.format(full_att_name, target, attribute_value))
-                except cs_error as e:
+                except CSError as e:
                     w2out(res_id, '\n!! - Error: {}'.format(e.message))
             else:
                 w2out(res_id, '\n!! - Unable to locate an attribute named {} for {}'.format(attribute_name, target))
@@ -582,7 +583,7 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
         try:
             cs_session.SetSandboxData(res_id, [SandboxDataKeyValue(key, value)])
             w2out(res_id, '- Success')
-        except cs_error as err:
+        except CSError as err:
             w2out(res_id, '!! Error: {}'.format(err.message))
 
     def clear_sandbox_data(self, context, check):
@@ -596,5 +597,61 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
             try:
                 cs_session.ClearSandboxData(res_id)
                 w2out(res_id, ' - Success')
-            except cs_error as err:
+            except CSError as err:
                 w2out(res_id, '!! Error: {}'.format(err.message))
+
+    def get_all_routes(self, context):
+        """
+
+        :param ResourceCommandContext context:
+        :return:
+        """
+        cs_session = self._open_cloudshell_session(context)
+        res_id = context.reservation.reservation_id
+        w2out = cs_session.WriteMessageToReservationOutput
+
+        w2out(res_id, '\n> All Routes for this Sandbox:')
+
+        try:
+            res_details = cs_session.GetReservationDetails(res_id).ReservationDescription
+            active_routes = res_details.ActiveRoutesInfo
+            requested_routes = res_details.RequestedRoutesInfo
+
+            if active_routes:
+                w2out(res_id, ' - Active Routes:')
+                n = 1
+                for r in active_routes:
+                    w2out(res_id, ' #{:2d} Alias: {:<25} Type: {}'.format(n, r.Alias, r.RouteType))
+                    w2out(res_id, '    From: {:40} To:{}'.format(n, r.Source, r.Target))
+                    n += 1
+            else:
+                w2out(res_id, ' - No Active Routes')
+
+            if requested_routes:
+                w2out(res_id, ' - Requested Routes:')
+                n = 1
+                for r in requested_routes:
+                    w2out(res_id, ' #{:2d} Alias: {:<25} Type: {}'.format(n, r.Alias, r.RouteType))
+                    w2out(res_id, '    From: {:40} To:{}'.format(n, r.Source, r.Target))
+                    n += 1
+            else:
+                w2out(res_id, ' - No Requested Routes')
+
+        except CSError as err:
+            w2out(res_id, '!! - Error: {}'.format(err.message))
+
+    def call_configure_apps(self, context):
+        """
+
+        :param ResourceCommandContext context:
+        :return:
+        """
+        cs_session = self._open_cloudshell_session(context)
+        res_id = context.reservation.reservation_id
+        w2out = cs_session.WriteMessageToReservationOutput
+
+        w2out(res_id, '\n> Calling Configure Apps for this Sandbox')
+        try:
+            cs_session.ConfigureApps(res_id, printOutput=True, appConfigurations=[])
+        except CSError as err:
+            w2out(res_id, '!! - Error: {}'.format(err.message))
