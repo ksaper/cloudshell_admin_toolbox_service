@@ -72,7 +72,7 @@ class LegacyUtils(object):
         return inspect.getmembers(sys.modules[__name__], inspect.isclass)
 
 
-class Cloudshell Admin Toolbox(object):
+class CloudshellAdminToolbox(object):
     def __init__(self, name):
         """
         
@@ -94,7 +94,7 @@ class Cloudshell Admin Toolbox(object):
         :return:
         :rtype Cloudshell Admin Toolbox
         """
-        result = Cloudshell Admin Toolbox(name=context.resource.name)
+        result = CloudshellAdminToolbox(name=context.resource.name)
         for attr in context.resource.attributes:
             result.attributes[attr] = context.resource.attributes[attr]
         return result

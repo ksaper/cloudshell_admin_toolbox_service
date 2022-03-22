@@ -530,9 +530,9 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
             if resources:
                 r_list = list()
                 w2out(res_id, '> Resources:')
-                for r in sorted(resources):
+                for r in resources:
                     r_list.append(r.Name)
-                r_list.sort()
+                r_list.sort() 
                 for rr in r_list:
                     x = rr.count('/')
                     w2out(res_id, '{}- {}'.format(' '*(1+x), rr))
@@ -621,7 +621,10 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
                 w2out(res_id, ' - Active Routes:')
                 n = 1
                 for r in active_routes:
-                    w2out(res_id, ' #{:2d} Alias: {:<25} Type: {}'.format(n, r.Alias, r.RouteType))
+                    alias = r.Alias
+                    if not alias:
+                        alias = '{}<>{}'.format(r.Source.split('/')[0], r.Target.split('/')[0])
+                    w2out(res_id, ' #{:2d} Alias:{:<25} Type: {}'.format(n, alias, r.RouteType))
                     w2out(res_id, '    From: {:40} To:{}'.format(n, r.Source, r.Target))
                     n += 1
             else:
@@ -631,11 +634,70 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
                 w2out(res_id, ' - Requested Routes:')
                 n = 1
                 for r in requested_routes:
-                    w2out(res_id, ' #{:2d} Alias: {:<25} Type: {}'.format(n, r.Alias, r.RouteType))
-                    w2out(res_id, '    From: {:40} To:{}'.format(n, r.Source, r.Target))
+                    alias = r.Alias
+                    if not alias:
+                        alias = '{}<>{}'.format(r.Source.split('/')[0], r.Target.split('/')[0])
+                    w2out(res_id, ' #{:2d} Alias: {:50}\nType: {}'.format(n, alias, r.RouteType))
+                    w2out(res_id, '    From: {:50}\n    To: {:50}\n'.format(r.Source, r.Target))
                     n += 1
             else:
                 w2out(res_id, ' - No Requested Routes')
+
+        except CSError as err:
+            w2out(res_id, '!! - Error: {}'.format(err.message))
+
+    def connect_all_routes(self, context):
+        """
+
+        :param ResourceCommandContext context:
+        :return:
+        """
+        cs_session = self._open_cloudshell_session(context)
+        res_id = context.reservation.reservation_id
+        w2out = cs_session.WriteMessageToReservationOutput
+
+        w2out(res_id, '\n> Connect All Routes for this Sandbox')
+
+        try:
+            res_details = cs_session.GetReservationDetails(res_id).ReservationDescription
+            # active_routes = res_details.ActiveRoutesInfo
+            requested_routes = res_details.RequestedRoutesInfo
+
+            if not requested_routes:
+                for route in requested_routes:
+                    w2out(res_id, ' - Connecting {} to {}  Type: {}'.format(route.Source, route.Target,
+                                                                            route.RouteType))
+                    cs_session.ConnectRoutesInReservation(res_id, [route.Source, route.Target], route.RouteType)
+            else:
+                w2out(res_id, '! - No Requested Routes in this Sandbox')
+
+        except CSError as err:
+            w2out(res_id, '!! - Error: {}'.format(err.message))
+
+    def disconnect_all_routes(self, context):
+        """
+
+        :param ResourceCommandContext context:
+        :return:
+        """
+        cs_session = self._open_cloudshell_session(context)
+        res_id = context.reservation.reservation_id
+        w2out = cs_session.WriteMessageToReservationOutput
+
+        w2out(res_id, '\n> Disconnect All Routes for this Sandbox')
+
+        try:
+            res_details = cs_session.GetReservationDetails(res_id).ReservationDescription
+            active_routes = res_details.ActiveRoutesInfo
+            # requested_routes = res_details.RequestedRoutesInfo
+
+            if not active_routes:
+                for route in active_routes:
+                    w2out(res_id, ' - Disconnecting {} to {}  Type: {}'.format(route.Source, route.Target,
+                                                                               route.RouteType))
+                    cs_session.DisconnectRoutesInReservation(res_id, [route.Source, route.Target])
+            else:
+                w2out(res_id, '! - No Requested Routes in this Sandbox')
 
         except CSError as err:
             w2out(res_id, '!! - Error: {}'.format(err.message))
@@ -655,3 +717,22 @@ class CloudshellAdminToolboxDriver (ResourceDriverInterface):
             cs_session.ConfigureApps(res_id, printOutput=True, appConfigurations=[])
         except CSError as err:
             w2out(res_id, '!! - Error: {}'.format(err.message))
+
+    def get_sandbox_global_inputs(self, context):
+        """
+
+        :param ResourceCommandContext context:
+        :return:
+        """
+        cs_session = self._open_cloudshell_session(context)
+        res_id = context.reservation.reservation_id
+        w2out = cs_session.WriteMessageToReservationOutput
+
+        g_inputs = cs_session.GetReservationInputs(res_id).GlobalInputs
+        x_ray = dict((x.ParamName, x.Value) for x in g_inputs)
+
+        w2out(res_id, '\n> Global Inputs: "key" | "value"')
+        for k, v in x_ray.items():
+            if not v:
+                v = '>-None-<'
+            w2out(res_id, ' - {:26} | {}'.format(k, v))

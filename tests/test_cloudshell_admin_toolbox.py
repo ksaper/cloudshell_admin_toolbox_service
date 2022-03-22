@@ -6,6 +6,7 @@ Tests for `CloudshellAdminToolboxDriver`
 """
 
 import unittest
+import mock
 
 from driver import CloudshellAdminToolboxDriver
 
